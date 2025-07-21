@@ -1,0 +1,70 @@
+/* style.css */
+html, body {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+body {
+  margin: 0;
+  background-color: rgb(255, 255, 255);
+}
+#game-wrapper {
+  width: 360px;
+  height: 576px;
+  background: rgb(122, 255, 144);
+  position: relative;
+  user-select: none;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+/* Fill container */
+#title-screen {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  color: white;
+  background: rgb(189, 139, 139);
+  text-align: center;
+  box-sizing: border-box;
+  padding: 20px;
+  user-select: none;
+}
+
+/* Title styling */
+#title-screen h1 {
+  margin: 0;
+  font-size: 2.5rem;
+  line-height: 1.2;
+}
+
+/* Buttons styling */
+.mode-btn {
+  width: 200px;
+  padding: 10px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  background: #222;
+  color: white;
+  border: 2px solid white;
+  border-radius: 6px;
+  transition: background 0.3s;
+}
+
+.mode-btn:hover {
+  background: white;
+  color: black;
+}
+
+/* Canvas fills the wrapper */
+#canvas {
+  width: 100%;
+  height: 100%;
+  display: none; /* hidden initially until mode starts */
+  background-color: rgb(0, 0, 0);
+}

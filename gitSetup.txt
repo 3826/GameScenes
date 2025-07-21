@@ -1,0 +1,12 @@
+Create a new repository https://github.com
+-Do not initialize with a README
+
+Copy the repository URL
+
+>
+git init
+git remote add origin https://github.com/3826/RepoName.git
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git push -u origin main
