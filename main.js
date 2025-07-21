@@ -1,3 +1,4 @@
+//main.js
 import { CANVAS_WIDTH, CANVAS_HEIGHT, DPR } from './constants.js';
 import { SceneManager } from './SceneManager.js';
 import { SceneMap } from './SceneMap.js';
@@ -17,8 +18,23 @@ const uiManager = new UIManager();
 
 const context = { canvas, ctx, width: CANVAS_WIDTH, height: CANVAS_HEIGHT, sceneManager };
 
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('Service Worker registered with scope:', registration.scope);
+      })
+      .catch(err => {
+        console.error('Service Worker registration failed:', err);
+      });
+  });
+}
+
+console.log('1',sceneManager.currentScene);
+
 function onModeSelected(mode) {
   uiManager.hide('title'); // Hide the DOM title screen
+  document.getElementById('back-btn').style.display = 'block';
   canvas.style.display = 'block'; // Show canvas
   switch (mode) {
     case 'Orb Clicker':
@@ -36,8 +52,14 @@ function onModeSelected(mode) {
       break;
   }
 }
+function backToTitle() {
+  uiManager.show('title');
+  canvas.style.display = 'none';
+  document.getElementById('back-btn').style.display = 'none';
+  sceneManager.switchScene(null);  // or a dedicated 'title' scene if you want
+}
 
-uiManager.init(onModeSelected);
+uiManager.init(onModeSelected, backToTitle);
 uiManager.show('title'); // Show DOM title screen initially
 
 sceneManager.currentScene = null;

@@ -5,12 +5,16 @@ export class SceneManager {
   }
 
   switchScene(newScene) {
+    
     if (this.currentScene && this.currentScene.destroy) {
+      console.log('Calling destroy() of previous scene');
       this.currentScene.destroy();
     }
+
     this.currentScene = newScene;
+    
     if (this.currentScene && this.currentScene.init) {
-      console.log('Calling init() of new scene');  // <-- Add this line
+      console.log('Calling init() of new scene');
       this.currentScene.init();
     }
   }

@@ -1,3 +1,4 @@
+//CanvasUI/TimerBar.js
 export class TimerBar {
   constructor(ctx, x, y, width, height, duration) {
     this.ctx = ctx;

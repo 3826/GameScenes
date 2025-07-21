@@ -1,4 +1,4 @@
-// Orb.js
+// OrbScene/Orb.js
 export class Orb {
   constructor(x, y, type, radius, speed, color) {
     this.x = x;

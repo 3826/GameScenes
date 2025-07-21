@@ -2,5 +2,9 @@
 export class Mode3Scene {
   init() {}
   destroy() {}
-  update() {}
+  update() {
+    this.draw();
+  }
+  draw() {}
 }
+

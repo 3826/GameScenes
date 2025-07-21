@@ -1,3 +1,4 @@
+// OrbScene/OrbScene.js
 import { Orb } from './Orb.js';
 import { TimerBar } from '../CanvasUI/TimerBar.js';
 
@@ -9,12 +10,12 @@ export class OrbScene {
     this.height = height;
     this.sceneManager = sceneManager;
 
-    this.timerTime = 10;
+    this.timerTime = 60;
     this.timerBar = new TimerBar(ctx, 10, 10, this.width / 4, this.height / 40, this.timerTime);
 
     this.orbTypes = {
-      smallFast: { radius: 10, speed: 50, color: 'blue', spawnInterval: 3 },
-      largeMedium: { radius: 30, speed: 30, color: 'red', spawnInterval: 3 },
+      smallFast: { radius: 10, speed: 60, color: 'blue', spawnInterval: 2 },
+      largeMedium: { radius: 30, speed: 40, color: 'red', spawnInterval: 5 },
     };
 
     this.orbs = [];
@@ -189,7 +190,30 @@ export class OrbScene {
   }
 
   destroy() {
-    console.log('destroy');
+    // Remove all event listeners to prevent leaks and unintended triggers
     this.removeAllListeners();
+    
+    // Clear the canvas visually
+    this.ctx.clearRect(0, 0, this.width, this.height);
+    
+    // Clear all dynamic data arrays and reset spawn timers
+    this.orbs = [];
+    this.clickCircles = [];
+    Object.keys(this.spawnTimers).forEach(type => {
+      this.spawnTimers[type] = 0;
+    });
+    
+    // Reset timer bar if applicable (optional)
+    if (this.timerBar) {
+      this.timerBar.elapsed = 0;
+    }
+    
+    // Nullify references to assist garbage collection
+    this.canvas = null;
+    this.ctx = null;
+    this.sceneManager = null;
+    this.timerBar = null;
+    this.orbTypes = null;
+    this.spawnTimers = null;
   }
 }
