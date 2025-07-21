@@ -1,0 +1,23 @@
+# Node modules (if you use npm)
+node_modules/
+
+# Build output folders (if any)
+dist/
+build/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Text
+gitSetup.txt
+
+# IDE/editor settings
+.vscode/
+.idea/
+
+# Environment variables (if any)
+.env
