@@ -9,22 +9,24 @@ html, body {
   justify-content: center;
   align-items: center;
 }
+html {
+  background-color: rgb(99, 77, 177);
+}
 body {
-  margin: 0;
-  background-color: rgb(255, 255, 255);
+  background-color: rgb(136, 22, 22);
 }
 #game-wrapper {
   width: 360px;
   height: 576px;
-  transform-origin: top left;
-  transform: scale(calc(min(100vw / 360, 100vh / 576)));
   background: rgb(122, 255, 144);
-  position: relative;
+  transform-origin: center center;
   user-select: none;
   overflow: hidden;
   box-sizing: border-box;
   font-family: monospace;
+  position: relative; /* needed for absolute children */
 }
+
 button {
   font-family: inherit;
 }

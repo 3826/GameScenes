@@ -3,11 +3,12 @@ import { Orb } from './Orb.js';
 import { TimerBar } from '../CanvasUI/TimerBar.js';
 
 export class OrbScene {
-  constructor({ canvas, ctx, width, height, sceneManager }) {
+  constructor({ canvas, ctx, width, height, scale, sceneManager }) {
     this.canvas = canvas;
     this.ctx = ctx;
     this.width = width;
     this.height = height;
+    this.scale = scale;
     this.sceneManager = sceneManager;
 
     this.timerTime = 60;
@@ -63,9 +64,10 @@ export class OrbScene {
 
   spawnOrb(type) {
     const t = this.orbTypes[type];
-    const x = Math.random() * (this.width - 2 * t.radius) + t.radius;
-    const y = -t.radius;
-    this.orbs.push(new Orb(x, y, type, t.radius, t.speed, t.color));
+    const radius = t.radius * this.scale;
+    const x = Math.random() * (this.width - 2 * radius) + radius;
+    const y = -radius;
+    this.orbs.push(new Orb(x, y, type, radius, t.speed, t.color));
   }
 
   handleClick(evt) {
