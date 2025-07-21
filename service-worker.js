@@ -16,7 +16,7 @@ self.addEventListener('install', (event) => {
         './OrbScene/Orb.js',
         './OrbScene/OrbScene.js',
         './CanvasUI/TimerBar.js',
-        './icons/Icon512x512.png'
+        './icons/icon-512.png'
       ])
     )
   );

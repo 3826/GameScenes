@@ -30,7 +30,11 @@ if ('serviceWorker' in navigator) {
   });
 }
 
-console.log('1',sceneManager.currentScene);
+if (window.matchMedia('(display-mode: standalone)').matches) {
+  console.log('Running as PWA (standalone mode)');
+} else {
+  console.log('Running in browser tab');
+}
 
 function onModeSelected(mode) {
   uiManager.hide('title'); // Hide the DOM title screen
