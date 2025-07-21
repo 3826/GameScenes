@@ -1,6 +1,8 @@
+const CACHE_NAME = 'orb-clicker-cache-v0.02';
+
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open('orb-clicker-cache-v1').then((cache) =>
+    caches.open(CACHE_NAME).then((cache) =>
       cache.addAll([
         './',
         './index.html',
@@ -18,6 +20,20 @@ self.addEventListener('install', (event) => {
         './CanvasUI/TimerBar.js',
         './icons/icon-512.png'
       ])
+    )
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => 
+      Promise.all(
+        cacheNames.map(name => {
+          if (name !== CACHE_NAME) {
+            return caches.delete(name);
+          }
+        })
+      )
     )
   );
 });
