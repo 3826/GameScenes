@@ -3,6 +3,7 @@ Create a new repository https://github.com
 
 Copy the repository URL
 
+INITIAL
 >
 git init
 git remote add origin https://github.com/3826/RepoName.git
@@ -10,3 +11,9 @@ git add .
 git commit -m "Initial commit"
 git branch -M main
 git push -u origin main
+
+UDATE
+>
+git add . || git add path/to/file.js
+git commit -m ""
+git push
