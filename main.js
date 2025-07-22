@@ -92,7 +92,4 @@ window.addEventListener('load', () => {
   }
 
   requestAnimationFrame(gameLoop);
-
-  console.log('Viewport width:', window.innerWidth);
-  console.log('Viewport height:', window.innerHeight);
 });

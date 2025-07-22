@@ -41,21 +41,21 @@ export class OrbScene {
     this.didPauseOnMouseDown = false;
 
     this.emptyClickHandler = () => {};
-    this.handleClick = this.handleClick.bind(this);
-    this.handleMouseDown = this.handleMouseDown.bind(this);
-    this.handleMouseUp = this.handleMouseUp.bind(this);
+    this.handlePointerDown = this.handlePointerDown.bind(this);
+    this.handlePointerUp = this.handlePointerUp.bind(this);
+    
     this.preventContextMenu = e => e.preventDefault();
+    this.addListener(this.canvas, 'contextmenu', this.preventContextMenu, { passive: false });
 
     this.addListener(this.canvas, 'click', this.emptyClickHandler);
-    this.addListener(this.canvas, 'mousedown', this.handleMouseDown);
-    this.addListener(this.canvas, 'mouseup', this.handleMouseUp);
-    this.addListener(this.canvas, 'contextmenu', this.preventContextMenu);
+    this.addListener(this.canvas, 'pointerdown', this.handlePointerDown, { passive: true });
+    this.addListener(this.canvas, 'pointerup', this.handlePointerUp, { passive: true });
   }
 
-  addListener(target, event, handler) {
+  addListener(target, event, handler, options = {}) {
     if (!this._listeners) this._listeners = [];
-    target.addEventListener(event, handler);
-    this._listeners.push({ target, event, handler });
+    target.addEventListener(event, handler, options);
+    this._listeners.push({ target, event, handler, options });
   }
 
   removeAllListeners() {
@@ -78,31 +78,33 @@ export class OrbScene {
     this.orbs.push(new Orb(x, y, type, radius, t.speed, t.color, t.drawPriority));
   }
 
-  handleClick(evt) {
+  getInputPosition(evt) {
     const rect = this.canvas.getBoundingClientRect();
-    const mouseX = (evt.clientX - rect.left) / this.scale;
-    const mouseY = (evt.clientY - rect.top) / this.scale;
-
-    this.clickCircles.add(mouseX, mouseY);
+    return {
+      x: (evt.clientX - rect.left) / this.scale,
+      y: (evt.clientY - rect.top) / this.scale
+    };
   }
 
-  handleMouseDown(evt) {
-    if (evt.button === 0) {
-      this.isMouseDown = true;
-      this.didPauseOnMouseDown = this.clickCircles.tryPauseLastIfFull();
-    }
+  handlePointerDown(evt) {
+    if (evt.pointerType === 'mouse' && evt.button !== 0) return;
+
+    this.isMouseDown = true;
+    this.didPauseOnMouseDown = this.clickCircles.tryPauseLastIfFull();
   }
 
-  handleMouseUp(evt) {
+  handlePointerUp(evt) {
+    if (evt.pointerType === 'mouse' && evt.button !== 0) return;
+
     this.isMouseDown = false;
-    if (evt.button !== 0) return;
 
     if (!this.didPauseOnMouseDown && this.clickCircles.shouldAddNewCircle()) {
-      this.handleClick(evt);
+      const { x, y } = this.getInputPosition(evt);
+      this.clickCircles.add(x, y);
     }
 
     this.didPauseOnMouseDown = false;
-  }
+}
 
   update(dt) {
     this.clickCircles.update(dt, this.isMouseDown);
@@ -125,9 +127,9 @@ export class OrbScene {
         const orb = this.orbs[j];
         const dx = orb.x - circle.x;
         const dy = orb.y - circle.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        const distSq = dx*dx + dy*dy;
 
-        if (dist + orb.radius <= radius) {
+        if (distSq <= (radius - orb.radius) ** 2) {
           orbCaught = true;
           this.orbs.splice(j, 1);
 
@@ -150,7 +152,7 @@ export class OrbScene {
       this.spawnTimers[type] += dt;
       if (this.spawnTimers[type] >= this.orbTypes[type].spawnInterval) {
         this.spawnOrb(type);
-        this.spawnTimers[type] = 0;
+        this.spawnTimers[type] -= this.orbTypes[type].spawnInterval;
       }
     }
   }
@@ -177,7 +179,7 @@ export class OrbScene {
     this.removeAllListeners();
     this.ctx.clearRect(0, 0, this.width, this.height);
 
-    this.orbs = [];
+    this.orbs = null;
     if (this.timerBar) this.timerBar.elapsed = 0;
 
     this.canvas = null;
