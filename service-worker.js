@@ -1,4 +1,4 @@
-const CACHE_NAME = 'orb-clicker-cache-v0.04';
+const CACHE_NAME = 'orb-clicker-cache-v0.05';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -16,6 +16,8 @@ self.addEventListener('install', (event) => {
         './manifest.json',
         './constants.js',
         './OrbScene/Orb.js',
+        './OrbScene/ClickCircle.js',
+        './OrbScene/ClickCircleInstance.js',
         './OrbScene/OrbScene.js',
         './CanvasUI/TimerBar.js',
         './favicon.ico'

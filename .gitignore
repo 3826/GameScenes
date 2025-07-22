@@ -21,3 +21,6 @@ gitSetup.txt
 
 # Environment variables (if any)
 .env
+
+#Temp js files
+ZZZ.js

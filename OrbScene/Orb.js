@@ -1,12 +1,13 @@
 // OrbScene/Orb.js
 export class Orb {
-  constructor(x, y, type, radius, speed, color) {
+  constructor(x, y, type, radius, speed, rgbColor, drawPriority) {
     this.x = x;
     this.y = y;
     this.type = type;
     this.radius = radius;
-    this.speed = speed; // vertical speed (pixels per second)
-    this.color = color;
+    this.speed = speed;
+    this.rgbColor = rgbColor;
+    this.drawPriority = drawPriority ?? 0;
   }
 
   update(dt) {
@@ -16,7 +17,7 @@ export class Orb {
   draw(ctx) {
     ctx.beginPath();
     ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-    ctx.fillStyle = this.color;
+    ctx.fillStyle = `rgba(${this.rgbColor}, 1)`;
     ctx.fill();
   }
 }

@@ -1,6 +1,7 @@
 // OrbScene/OrbScene.js
-import { Orb } from './Orb.js';
 import { TimerBar } from '../CanvasUI/TimerBar.js';
+import { ClickCircle } from './ClickCircle.js';
+import { Orb } from './Orb.js';
 
 export class OrbScene {
   constructor({ canvas, ctx, width, height, scale, sceneManager }) {
@@ -11,21 +12,30 @@ export class OrbScene {
     this.scale = scale;
     this.sceneManager = sceneManager;
 
-    this.timerTime = 60;
-    this.timerBar = new TimerBar(ctx, 10, 10, 200, 20, 60)
+    this.timerBar = new TimerBar(ctx, 10, 10, 200, 20, 60);
 
     this.orbTypes = {
-      smallFast: { radius: 10, speed: 60, color: 'blue', spawnInterval: 2 },
-      largeMedium: { radius: 32, speed: 40, color: 'red', spawnInterval: 5 },
+      smallFast: {
+        radius: 10,
+        speed: 60,
+        color: '255,0,0',
+        spawnInterval: 2,
+        drawPriority: 1 // lower = behind
+      },
+      largeMedium: {
+        radius: 32,
+        speed: 40,
+        color: '0,0,255',
+        spawnInterval: 5,
+        drawPriority: 2
+      }
     };
 
     this.orbs = [];
     this.spawnTimers = {};
-    Object.keys(this.orbTypes).forEach(type => this.spawnTimers[type] = 0);
+    Object.keys(this.orbTypes).forEach(type => (this.spawnTimers[type] = 0));
 
-    this.clickCircles = [];
-    this.allowMultipleCircles = true;
-    this.maxClickCircles = 3;
+    this.clickCircles = new ClickCircle(3);
 
     this.isMouseDown = false;
     this.didPauseOnMouseDown = false;
@@ -57,7 +67,7 @@ export class OrbScene {
   }
 
   init() {
-    Object.keys(this.spawnTimers).forEach(type => this.spawnTimers[type] = 0);
+    Object.keys(this.spawnTimers).forEach(type => (this.spawnTimers[type] = 0));
   }
 
   spawnOrb(type) {
@@ -65,7 +75,7 @@ export class OrbScene {
     const radius = t.radius;
     const x = Math.random() * (this.width - 2 * radius) + radius;
     const y = -radius;
-    this.orbs.push(new Orb(x, y, type, radius, t.speed, t.color));
+    this.orbs.push(new Orb(x, y, type, radius, t.speed, t.color, t.drawPriority));
   }
 
   handleClick(evt) {
@@ -73,49 +83,21 @@ export class OrbScene {
     const mouseX = (evt.clientX - rect.left) / this.scale;
     const mouseY = (evt.clientY - rect.top) / this.scale;
 
-    if (!this.allowMultipleCircles || this.clickCircles.length < this.maxClickCircles) {
-      this.clickCircles.push({
-        x: mouseX,
-        y: mouseY,
-        elapsed: 0,
-        duration: 2,
-        startRadius: 5,
-        maxRadius: 33,
-        isPaused: false,
-      });
-    }
+    this.clickCircles.add(mouseX, mouseY);
   }
 
   handleMouseDown(evt) {
     if (evt.button === 0) {
       this.isMouseDown = true;
-      this.didPauseOnMouseDown = false;
-
-      if (!this.allowMultipleCircles && this.clickCircles.length === 1) {
-        this.clickCircles[0].isPaused = true;
-        this.didPauseOnMouseDown = true;
-      }
+      this.didPauseOnMouseDown = this.clickCircles.tryPauseLastIfFull();
     }
   }
 
   handleMouseUp(evt) {
     this.isMouseDown = false;
-
-    if (evt.button === 2) {
-      if (this.clickCircles.length > 0) {
-        this.clickCircles.pop();
-      }
-      return;
-    }
-
     if (evt.button !== 0) return;
 
-    const noCircles = this.clickCircles.length === 0;
-    const lastPaused = this.clickCircles.length > 0 && this.clickCircles[this.clickCircles.length - 1].isPaused;
-
-    const canSpawn = !this.didPauseOnMouseDown && (this.allowMultipleCircles || noCircles || !lastPaused);
-
-    if (canSpawn) {
+    if (!this.didPauseOnMouseDown && this.clickCircles.shouldAddNewCircle()) {
       this.handleClick(evt);
     }
 
@@ -123,41 +105,47 @@ export class OrbScene {
   }
 
   update(dt) {
-    this.clickCircles.forEach((c) => {
-      if (!c.isPaused) {
-        c.elapsed += dt;
-      }
-      if (!this.isMouseDown) {
-        c.isPaused = false;
-      }
-    });
+    this.clickCircles.update(dt, this.isMouseDown);
+    this.processCircleOrbInteractions();
+    this.spawnOrbs(dt);
+    this.updateOrbs(dt);
+    this.timerBar.update(dt);
+    this.draw();
+  }
 
-    this.clickCircles = this.clickCircles.filter(c => {
-      const t = c.elapsed / c.duration;
-      const radius = t * c.maxRadius + c.startRadius;
+  processCircleOrbInteractions() {
+    const circles = this.clickCircles.getCircles();
 
-      let orbRemoved = false;
+    for (let i = circles.length - 1; i >= 0; i--) {
+      const circle = circles[i];
+      const radius = circle.getRadius();
+      let orbCaught = false;
 
-      this.orbs = this.orbs.filter(orb => {
-        const dx = orb.x - c.x;
-        const dy = orb.y - c.y;
+      for (let j = this.orbs.length - 1; j >= 0; j--) {
+        const orb = this.orbs[j];
+        const dx = orb.x - circle.x;
+        const dy = orb.y - circle.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
+
         if (dist + orb.radius <= radius) {
-          orbRemoved = true;
+          orbCaught = true;
+          this.orbs.splice(j, 1);
+
           if (orb.type === 'smallFast') {
-            this.timerBar.elapsed = Math.min(this.timerTime, this.timerBar.elapsed + 5);
+            this.timerBar.addTime(5);
+          } else if (orb.type === 'largeMedium') {
+            this.timerBar.subtractTime(5);
           }
-          else if (orb.type === 'largeMedium') {
-            this.timerBar.elapsed = Math.max(0, this.timerBar.elapsed - 5);
-          }
-          return false;
         }
-        return true;
-      });
+      }
 
-      return !orbRemoved && c.elapsed < c.duration;
-    });
+      if (orbCaught) {
+        this.clickCircles.removeAt(i);
+      }
+    }
+  }
 
+  spawnOrbs(dt) {
     for (const type in this.orbTypes) {
       this.spawnTimers[type] += dt;
       if (this.spawnTimers[type] >= this.orbTypes[type].spawnInterval) {
@@ -165,44 +153,32 @@ export class OrbScene {
         this.spawnTimers[type] = 0;
       }
     }
+  }
 
+  updateOrbs(dt) {
     this.orbs.forEach(orb => orb.update(dt));
     this.orbs = this.orbs.filter(orb => orb.y - orb.radius <= this.height);
-
-    this.timerBar.update(dt);
-    this.draw();
   }
 
   draw() {
     this.ctx.clearRect(0, 0, this.width, this.height);
-    this.orbs.forEach(orb => orb.draw(this.ctx));
-    this.timerBar.draw();
 
-    this.clickCircles.forEach(c => {
-      const t = c.elapsed / c.duration;
-      const radius = t * c.maxRadius + c.startRadius;
-      this.ctx.beginPath();
-      this.ctx.arc(c.x, c.y, radius, 0, Math.PI * 2);
-      this.ctx.strokeStyle = 'white';
-      this.ctx.lineWidth = 2;
-      this.ctx.stroke();
-    });
+    this.clickCircles.draw(this.ctx);
+
+    this.orbs
+      .slice() // non-mutating copy
+      .sort((a, b) => a.drawPriority - b.drawPriority)
+      .forEach(orb => orb.draw(this.ctx));
+
+    this.timerBar.draw();
   }
 
   destroy() {
     this.removeAllListeners();
-
     this.ctx.clearRect(0, 0, this.width, this.height);
 
     this.orbs = [];
-    this.clickCircles = [];
-    Object.keys(this.spawnTimers).forEach(type => {
-      this.spawnTimers[type] = 0;
-    });
-
-    if (this.timerBar) {
-      this.timerBar.elapsed = 0;
-    }
+    if (this.timerBar) this.timerBar.elapsed = 0;
 
     this.canvas = null;
     this.ctx = null;
@@ -210,5 +186,6 @@ export class OrbScene {
     this.timerBar = null;
     this.orbTypes = null;
     this.spawnTimers = null;
+    this.clickCircles = null;
   }
 }

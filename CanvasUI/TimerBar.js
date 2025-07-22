@@ -1,8 +1,7 @@
-// CanvasUI/TimerBar.js
+// TimerBar.js
 export class TimerBar {
   constructor(ctx, x, y, width, height, duration) {
     this.ctx = ctx;
-
     this.x = x;
     this.y = y;
     this.width = width;
@@ -22,25 +21,29 @@ export class TimerBar {
     if (!this.active) return;
 
     this.elapsed += dt;
-
     if (this.elapsed >= this.duration) {
       this.elapsed = this.duration;
       this.active = false;
     }
   }
 
+  addTime(seconds) {
+    this.elapsed = Math.min(this.duration, this.elapsed + seconds);
+  }
+
+  subtractTime(seconds) {
+    this.elapsed = Math.max(0, this.elapsed - seconds);
+  }
+
   draw() {
     const ctx = this.ctx;
-    const stepDuration = 3; // seconds per chunk (adjust as needed)
-    // Snap elapsed to nearest step for discrete visual update
+    const stepDuration = 3;
     const steppedElapsed = Math.floor(this.elapsed / stepDuration) * stepDuration;
     const percent = 1 - steppedElapsed / this.duration;
 
-    // Background bar (no offset for fill)
     ctx.fillStyle = '#444';
     ctx.fillRect(this.x, this.y, this.width, this.height);
 
-    // Fill bar
     ctx.fillStyle = '#0f0';
     ctx.fillRect(this.x, this.y, this.width * percent, this.height);
   }
