@@ -10,6 +10,7 @@ window.addEventListener('load', () => {
   // Set canvas internal resolution for sharpness on high-DPI screens
   canvas.width = CANVAS_WIDTH * DPR;
   canvas.height = CANVAS_HEIGHT * DPR;
+
   // Set canvas CSS size to logical size
   canvas.style.width = CANVAS_WIDTH + 'px';
   canvas.style.height = CANVAS_HEIGHT + 'px';
@@ -17,7 +18,7 @@ window.addEventListener('load', () => {
   const ctx = canvas.getContext('2d');
   ctx.scale(DPR, DPR);
 
-  // Calculate scale to maintain aspect ratio and fit screen
+  // Calculate initial scale to fit viewport once
   const scale = Math.min(window.innerWidth / CANVAS_WIDTH, window.innerHeight / CANVAS_HEIGHT);
 
   const wrapper = document.getElementById('game-wrapper');
@@ -70,7 +71,7 @@ window.addEventListener('load', () => {
     uiManager.show('title');
     canvas.style.display = 'none';
     document.getElementById('back-btn').style.display = 'none';
-    sceneManager.switchScene(null);  // or a dedicated 'title' scene if you want
+    sceneManager.switchScene(null);
   }
 
   uiManager.init(onModeSelected, backToTitle);

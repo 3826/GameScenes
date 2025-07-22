@@ -12,11 +12,11 @@ export class OrbScene {
     this.sceneManager = sceneManager;
 
     this.timerTime = 60;
-    this.timerBar = new TimerBar(ctx, 10, 10, this.width / 4, this.height / 40, this.timerTime);
+    this.timerBar = new TimerBar(ctx, 10, 10, 200, 20, 60)
 
     this.orbTypes = {
       smallFast: { radius: 10, speed: 60, color: 'blue', spawnInterval: 2 },
-      largeMedium: { radius: 30, speed: 40, color: 'red', spawnInterval: 5 },
+      largeMedium: { radius: 32, speed: 40, color: 'red', spawnInterval: 5 },
     };
 
     this.orbs = [];
@@ -30,14 +30,12 @@ export class OrbScene {
     this.isMouseDown = false;
     this.didPauseOnMouseDown = false;
 
-    // Bind handlers once for proper add/remove
     this.emptyClickHandler = () => {};
     this.handleClick = this.handleClick.bind(this);
     this.handleMouseDown = this.handleMouseDown.bind(this);
     this.handleMouseUp = this.handleMouseUp.bind(this);
     this.preventContextMenu = e => e.preventDefault();
 
-    // Use helper to add event listeners
     this.addListener(this.canvas, 'click', this.emptyClickHandler);
     this.addListener(this.canvas, 'mousedown', this.handleMouseDown);
     this.addListener(this.canvas, 'mouseup', this.handleMouseUp);
@@ -64,7 +62,7 @@ export class OrbScene {
 
   spawnOrb(type) {
     const t = this.orbTypes[type];
-    const radius = t.radius * this.scale;
+    const radius = t.radius;
     const x = Math.random() * (this.width - 2 * radius) + radius;
     const y = -radius;
     this.orbs.push(new Orb(x, y, type, radius, t.speed, t.color));
@@ -72,8 +70,8 @@ export class OrbScene {
 
   handleClick(evt) {
     const rect = this.canvas.getBoundingClientRect();
-    const mouseX = evt.clientX - rect.left;
-    const mouseY = evt.clientY - rect.top;
+    const mouseX = (evt.clientX - rect.left) / this.scale;
+    const mouseY = (evt.clientY - rect.top) / this.scale;
 
     if (!this.allowMultipleCircles || this.clickCircles.length < this.maxClickCircles) {
       this.clickCircles.push({
@@ -192,25 +190,20 @@ export class OrbScene {
   }
 
   destroy() {
-    // Remove all event listeners to prevent leaks and unintended triggers
     this.removeAllListeners();
-    
-    // Clear the canvas visually
+
     this.ctx.clearRect(0, 0, this.width, this.height);
-    
-    // Clear all dynamic data arrays and reset spawn timers
+
     this.orbs = [];
     this.clickCircles = [];
     Object.keys(this.spawnTimers).forEach(type => {
       this.spawnTimers[type] = 0;
     });
-    
-    // Reset timer bar if applicable (optional)
+
     if (this.timerBar) {
       this.timerBar.elapsed = 0;
     }
-    
-    // Nullify references to assist garbage collection
+
     this.canvas = null;
     this.ctx = null;
     this.sceneManager = null;
