@@ -1,4 +1,4 @@
-const CACHE_NAME = 'orb-clicker-cache-v0.05';
+const CACHE_NAME = 'orb-clicker-cache-v0.06';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
