@@ -2,9 +2,12 @@
 import { ClickCircleInstance } from './ClickCircleInstance.js';
 
 export class ClickCircle {
-  constructor(maxCircles) {
+  constructor(maxCircles, optionalArgs = {}) {
     this.clickCircles = [];
     this.maxClickCircles = maxCircles;
+
+    // Store optional defaults for ClickCircleInstance
+    this.optionalArgs = optionalArgs;
   }
 
   canAdd() {
@@ -28,10 +31,11 @@ export class ClickCircle {
 
   add(x, y) {
     if (!this.canAdd()) return;
-    this.clickCircles.push(new ClickCircleInstance(x, y));
+    this.clickCircles.push(new ClickCircleInstance(x, y, this.optionalArgs));
   }
 
   removeAt(index) {
+    console.log('removeAt');
     if (index >= 0 && index < this.clickCircles.length) {
       this.clickCircles.splice(index, 1);
     }

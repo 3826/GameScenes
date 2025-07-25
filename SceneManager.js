@@ -5,7 +5,6 @@ export class SceneManager {
   }
 
   switchScene(newScene) {
-    
     if (this.currentScene && this.currentScene.destroy) {
       console.log('Calling destroy() of previous scene');
       this.currentScene.destroy();

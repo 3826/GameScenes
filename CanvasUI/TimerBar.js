@@ -27,11 +27,11 @@ export class TimerBar {
     }
   }
 
-  addTime(seconds) {
+  subtractTime(seconds) {
     this.elapsed = Math.min(this.duration, this.elapsed + seconds);
   }
 
-  subtractTime(seconds) {
+  addTime(seconds) {
     this.elapsed = Math.max(0, this.elapsed - seconds);
   }
 

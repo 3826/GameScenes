@@ -1,15 +1,15 @@
 // SceneMap.js
 import { OrbScene } from './OrbScene/OrbScene.js';
-import { Mode2Scene } from './Mode2Scene.js'; // Assuming you have this from previous step
-import { Mode3Scene } from './Mode3Scene.js'; // Placeholder for mode 3 scene
+import { RoomManager } from './Rooms/RoomManager.js';
+import { FishingManager } from './Fishing/FishingManager.js';
 
 export const SceneMap = {
   orbClicker: (context) =>
     new OrbScene(context),
 
-  mode2: (context) =>
-    new Mode2Scene(context),
+  rooms: (context) =>
+    new RoomManager(context),
 
-  mode3: (context) =>
-    new Mode3Scene(context),
+  fishing: (context) =>
+    new FishingManager(context),
 };

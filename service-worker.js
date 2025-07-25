@@ -1,26 +1,27 @@
-const CACHE_NAME = 'orb-clicker-cache-v0.06';
+const CACHE_NAME = 'orb-clicker-cache-v0.1';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) =>
       cache.addAll([
         './',
-        './index.html',
-        './style.css',
-        './main.js',
-        './UIManager.js',
-        './SceneMap.js',
-        './SceneManager.js',
-        './Mode3Scene.js',
-        './Mode2Scene.js',
-        './manifest.json',
-        './constants.js',
-        './OrbScene/Orb.js',
-        './OrbScene/ClickCircle.js',
-        './OrbScene/ClickCircleInstance.js',
-        './OrbScene/OrbScene.js',
+        './CanvasComponents/ClickCircle.js',
+        './CanvasComponents/ClickCircleInstance.js',
         './CanvasUI/TimerBar.js',
-        './favicon.ico'
+        './Fishing/FishingManager.js',
+        './OrbScene/Orb.js',
+        './OrbScene/OrbScene.js',
+        './Rooms/Rooms.js',
+        './Rooms/RoomManager.js',
+        './constants.js',
+        './favicon.ico',
+        './index.html',
+        './main.js',
+        './manifest.json',
+        './SceneManager.js',
+        './SceneMap.js',
+        './style.css',
+        './UIManager.js',
       ])
     )
   );

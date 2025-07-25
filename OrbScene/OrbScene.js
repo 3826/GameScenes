@@ -1,6 +1,6 @@
 // OrbScene/OrbScene.js
 import { TimerBar } from '../CanvasUI/TimerBar.js';
-import { ClickCircle } from './ClickCircle.js';
+import { ClickCircle } from '../CanvasComponents/ClickCircle.js';
 import { Orb } from './Orb.js';
 
 export class OrbScene {
@@ -20,7 +20,7 @@ export class OrbScene {
         speed: 60,
         color: '255,0,0',
         spawnInterval: 2,
-        drawPriority: 1 // lower = behind
+        drawPriority: 1
       },
       largeMedium: {
         radius: 32,
@@ -35,10 +35,11 @@ export class OrbScene {
     this.spawnTimers = {};
     Object.keys(this.orbTypes).forEach(type => (this.spawnTimers[type] = 0));
 
-    this.clickCircles = new ClickCircle(3);
+    const maxClickCircles = 1;
+    this.clickCircles = new ClickCircle(maxClickCircles);
 
-    this.isMouseDown = false;
-    this.didPauseOnMouseDown = false;
+    this.isPointerDown = false;
+    this.didPauseOnPointerDown = false;
 
     this.emptyClickHandler = () => {};
     this.handlePointerDown = this.handlePointerDown.bind(this);
@@ -80,34 +81,46 @@ export class OrbScene {
 
   getInputPosition(evt) {
     const rect = this.canvas.getBoundingClientRect();
-    return {
-      x: (evt.clientX - rect.left) / this.scale,
-      y: (evt.clientY - rect.top) / this.scale
-    };
+    if (evt.pointerType === 'touch') {
+      console.log('touch');
+      return {
+        x: (evt.clientX - rect.left) / this.scale,
+        y: (evt.clientY - rect.top) / this.scale
+      };
+    } 
+    else if (evt.pointerType === 'mouse') {
+      console.log('mouse');
+      const scaleX = this.canvas.width / rect.width;
+      const scaleY = this.canvas.height / rect.height;
+      return {
+        x: (evt.clientX - rect.left) * scaleX,
+        y: (evt.clientY - rect.top) * scaleY
+      };
+    }
   }
 
   handlePointerDown(evt) {
     if (evt.pointerType === 'mouse' && evt.button !== 0) return;
 
-    this.isMouseDown = true;
-    this.didPauseOnMouseDown = this.clickCircles.tryPauseLastIfFull();
+    this.isPointerDown = true;
+    this.didPauseOnPointerDown = this.clickCircles.tryPauseLastIfFull();
   }
 
   handlePointerUp(evt) {
     if (evt.pointerType === 'mouse' && evt.button !== 0) return;
 
-    this.isMouseDown = false;
+    this.isPointerDown = false;
 
-    if (!this.didPauseOnMouseDown && this.clickCircles.shouldAddNewCircle()) {
+    if (!this.didPauseOnPointerDown && this.clickCircles.shouldAddNewCircle()) {
       const { x, y } = this.getInputPosition(evt);
       this.clickCircles.add(x, y);
     }
 
-    this.didPauseOnMouseDown = false;
+    this.didPauseOnPointerDown = false;
 }
 
   update(dt) {
-    this.clickCircles.update(dt, this.isMouseDown);
+    this.clickCircles.update(dt, this.isPointerDown);
     this.processCircleOrbInteractions();
     this.spawnOrbs(dt);
     this.updateOrbs(dt);
@@ -133,11 +146,12 @@ export class OrbScene {
           orbCaught = true;
           this.orbs.splice(j, 1);
 
-          if (orb.type === 'smallFast') {
+          if (orb.type === 'largeMedium')  {
             this.timerBar.addTime(5);
-          } else if (orb.type === 'largeMedium') {
-            this.timerBar.subtractTime(5);
           }
+          // else if (orb.type === 'smallFast') {
+            // this.timerBar.subtractTime(5);
+          // } 
         }
       }
 
@@ -159,7 +173,15 @@ export class OrbScene {
 
   updateOrbs(dt) {
     this.orbs.forEach(orb => orb.update(dt));
-    this.orbs = this.orbs.filter(orb => orb.y - orb.radius <= this.height);
+    this.orbs = this.orbs.filter(orb => {
+      if (orb.y - orb.radius > this.height) {
+        if (orb.type === 'smallFast') {
+          this.timerBar.subtractTime(5);
+        }
+        return false; // remove this orb
+      }
+      return true; // keep this orb
+    });
   }
 
   draw() {

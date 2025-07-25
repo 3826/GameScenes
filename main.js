@@ -21,10 +21,6 @@ window.addEventListener('load', () => {
   // Calculate initial scale to fit viewport once
   const scale = Math.min(window.innerWidth / CANVAS_WIDTH, window.innerHeight / CANVAS_HEIGHT);
 
-  const wrapper = document.getElementById('game-wrapper');
-  wrapper.style.transformOrigin = 'center center';
-  wrapper.style.transform = `scale(${scale})`;
-
   const sceneManager = new SceneManager();
   const uiManager = new UIManager();
 
@@ -51,14 +47,14 @@ window.addEventListener('load', () => {
     document.getElementById('back-btn').style.display = 'block';
     canvas.style.display = 'block'; // Show canvas
     switch (mode) {
-      case 'Orb Clicker':
+      case 'Orbs':
         sceneManager.switchScene(SceneMap.orbClicker(context));
         break;
-      case 'Mode 2':
-        sceneManager.switchScene(SceneMap.mode2(context));
+      case 'rooms':
+        sceneManager.switchScene(SceneMap.rooms(context));
         break;
-      case 'Mode 3':
-        sceneManager.switchScene(SceneMap.mode3(context));
+      case 'fishing':
+        sceneManager.switchScene(SceneMap.fishing(context));
         break;
       default:
         alert(`${mode} not implemented yet.`);

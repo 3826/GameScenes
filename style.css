@@ -19,7 +19,7 @@ body {
   width: 360px;
   height: 576px;
   background: rgb(122, 255, 144);
-  transform-origin: center center;
+  /* transform-origin: center center; */
   user-select: none;
   overflow: hidden;
   box-sizing: border-box;
