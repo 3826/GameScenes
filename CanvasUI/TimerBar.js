@@ -8,7 +8,7 @@ export class TimerBar {
     this.height = height;
 
     this.duration = duration;
-    this.elapsed = 0;
+    this.elapsed = 16;
     this.active = true;
   }
 

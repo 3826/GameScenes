@@ -1,4 +1,4 @@
-//OrbScene/ClickCircle.js
+//CanvasComponents/ClickCircle.js
 import { ClickCircleInstance } from './ClickCircleInstance.js';
 
 export class ClickCircle {

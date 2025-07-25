@@ -30,10 +30,27 @@ window.addEventListener('load', () => {
     navigator.serviceWorker.register('/service-worker.js')
       .then(registration => {
         console.log('Service Worker registered with scope:', registration.scope);
+
+        // Listen for updates to the service worker
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              console.log('New service worker installed. Reloading...');
+              window.location.reload();
+            }
+          });
+        });
       })
       .catch(err => {
         console.error('Service Worker registration failed:', err);
       });
+
+    // Reload page when service worker takes control
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      window.location.reload();
+    });
   }
 
   if (window.matchMedia('(display-mode: standalone)').matches) {

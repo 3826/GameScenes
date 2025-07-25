@@ -1,4 +1,4 @@
-//OrbScene/ClickCircleInstance.js
+//CanvasComponents/ClickCircleInstance.js
 export class ClickCircleInstance {
   constructor(x, y, { lineWidth = 3, duration = 2, startRadius = 5, maxRadius = 35 } = {}) {
     this.x = x;

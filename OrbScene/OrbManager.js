@@ -3,7 +3,7 @@ import { TimerBar } from '../CanvasUI/TimerBar.js';
 import { ClickCircle } from '../CanvasComponents/ClickCircle.js';
 import { Orb } from './Orb.js';
 
-export class OrbScene {
+export class OrbManager {
   constructor({ canvas, ctx, width, height, scale, sceneManager }) {
     this.canvas = canvas;
     this.ctx = ctx;
@@ -19,14 +19,14 @@ export class OrbScene {
         radius: 10,
         speed: 60,
         color: '255,0,0',
-        spawnInterval: 2,
+        spawnInterval: 2.5,
         drawPriority: 1
       },
       largeMedium: {
         radius: 32,
         speed: 40,
         color: '0,0,255',
-        spawnInterval: 5,
+        spawnInterval: 6,
         drawPriority: 2
       }
     };
@@ -35,8 +35,12 @@ export class OrbScene {
     this.spawnTimers = {};
     Object.keys(this.orbTypes).forEach(type => (this.spawnTimers[type] = 0));
 
-    const maxClickCircles = 1;
-    this.clickCircles = new ClickCircle(maxClickCircles);
+    this.clickCircles = new ClickCircle(1, {
+      lineWidth: 3,
+      duration: 2,
+      startRadius: 5,
+      maxRadius: 34
+    });
 
     this.isPointerDown = false;
     this.didPauseOnPointerDown = false;
@@ -147,7 +151,7 @@ export class OrbScene {
           this.orbs.splice(j, 1);
 
           if (orb.type === 'largeMedium')  {
-            this.timerBar.addTime(5);
+            this.timerBar.addTime(10);
           }
           // else if (orb.type === 'smallFast') {
             // this.timerBar.subtractTime(5);
