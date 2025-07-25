@@ -6,7 +6,7 @@ import { UIManager } from './UIManager.js';
 
 window.addEventListener('load', () => {
   const canvas = document.getElementById('canvas');
-
+  
   // Set canvas internal resolution for sharpness on high-DPI screens
   canvas.width = CANVAS_WIDTH * DPR;
   canvas.height = CANVAS_HEIGHT * DPR;
@@ -25,7 +25,7 @@ window.addEventListener('load', () => {
   const uiManager = new UIManager();
 
   const context = { canvas, ctx, width: CANVAS_WIDTH, height: CANVAS_HEIGHT, scale, sceneManager };
-
+  
   if ('serviceWorker' in navigator) {
     console.log('ServiceWorker:');
     

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'orb-clicker-cache-v0.1.1'
+const CACHE_NAME = 'orb-clicker-cache-v0.1.1.1'
 const FILES_TO_CACHE = [
   './',
   './CanvasComponents/ClickCircle.js',
@@ -7,7 +7,7 @@ const FILES_TO_CACHE = [
   './Fishing/FishingManager.js',
   './OrbScene/Orb.js',
   './OrbScene/OrbManager.js',
-  './Rooms/Rooms.js',
+  './Rooms/Room.js',
   './Rooms/RoomManager.js',
   './constants.js',
   './favicon.ico',
