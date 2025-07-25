@@ -27,24 +27,27 @@ window.addEventListener('load', () => {
   const context = { canvas, ctx, width: CANVAS_WIDTH, height: CANVAS_HEIGHT, scale, sceneManager };
 
   if ('serviceWorker' in navigator) {
+    console.log('ServiceWorker:');
+    
     navigator.serviceWorker.register('/service-worker.js')
       .then(registration => {
-        console.log('Service Worker registered with scope:', registration.scope);
+        console.log('- Registered with scope:', registration.scope);
 
         // Listen for updates to the service worker
         registration.addEventListener('updatefound', () => {
+          console.log('- Update found.');
           const newWorker = registration.installing;
 
           newWorker.addEventListener('statechange', () => {
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              console.log('New service worker installed. Reloading...');
+              console.log('- Update installed. Reloading...');
               window.location.reload();
             }
           });
         });
       })
       .catch(err => {
-        console.error('Service Worker registration failed:', err);
+        console.error('- Registration failed:', err);
       });
 
     // Reload page when service worker takes control

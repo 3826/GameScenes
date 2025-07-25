@@ -24,6 +24,7 @@ const FILES_TO_CACHE = [
 const ALWAYS_UPDATE = ['./main.js'];
 
 self.addEventListener('install', event => {
+  console.log('[ServiceWorker] Installing - version:', CACHE_NAME);
   self.skipWaiting(); // Force install to complete immediately
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
@@ -31,6 +32,7 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
+  console.log('[ServiceWorker] Activating - version:', CACHE_NAME);
   self.clients.claim(); // Take control immediately
   event.waitUntil(
     caches.keys().then(cacheNames =>
@@ -46,6 +48,7 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  console.log('[ServiceWorker] Fetching:', event.request.url);
   const url = new URL(event.request.url);
   const shouldAlwaysUpdate = ALWAYS_UPDATE.some(path => url.pathname.endsWith(path));
 
