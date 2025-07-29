@@ -1,19 +1,19 @@
 const CACHE_NAME_BASE = 'GameProto';
-const CACHE_VERSION = 'v0.1.2';
+const CACHE_VERSION = 'v0.1.2.1';
 const CACHE_NAME = `${CACHE_NAME_BASE}-${CACHE_VERSION}`;
 
 const FILES_TO_CACHE = [
   './',
   './CanvasComponents/ClickCircle.js',
   './CanvasComponents/ClickCircleInstance.js',
-  './CanvasUI/TimerBar.js',
   './CanvasUI/Messager.js',
+  './CanvasUI/TimerBar.js',
   './Fishing/FishingManager.js',
   './OrbScene/Orb.js',
   './OrbScene/OrbManager.js',
   './Rooms/Room.js',
   './Rooms/RoomManager.js',
-  './constants.js',
+  './globals.js',
   './favicon.ico',
   './index.html',
   './main.js',
