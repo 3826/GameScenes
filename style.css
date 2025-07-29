@@ -15,6 +15,21 @@ html {
 body {
   background-color: rgb(136, 22, 22);
 }
+#version-display {
+  position: fixed;
+  top: 5px;
+  left: 5px;
+  font-family: monospace;
+  font-size: 12px;
+  color: white;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 2px 6px;
+  border-radius: 3px;
+  z-index: 9999;
+  pointer-events: none;
+  user-select: none;
+}
+
 #game-wrapper {
   width: 360px;
   height: 576px;

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'orb-clicker-cache-v0.2'
+const CACHE_NAME = 'orb-clicker-cache-v0.2.1'
 const FILES_TO_CACHE = [
   './',
   './CanvasComponents/ClickCircle.js',
@@ -35,6 +35,8 @@ self.addEventListener('install', event => {
 self.addEventListener('activate', event => {
   console.log('[ServiceWorker] Activating - version:', CACHE_NAME);
   self.clients.claim(); // Take control immediately
+
+  // Send version to all clients
   event.waitUntil(
     caches.keys().then(cacheNames =>
       Promise.all(
@@ -44,6 +46,12 @@ self.addEventListener('activate', event => {
           }
         })
       )
+    ).then(() =>
+      self.clients.matchAll().then(clients => {
+        clients.forEach(client => {
+          client.postMessage({ type: 'version', version: CACHE_NAME });
+        });
+      })
     )
   );
 });

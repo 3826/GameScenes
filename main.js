@@ -26,6 +26,15 @@ window.addEventListener('load', () => {
 
   const context = { canvas, ctx, width: CANVAS_WIDTH, height: CANVAS_HEIGHT, scale, sceneManager };
   
+  const versionDiv = document.getElementById('version-display');
+  if (navigator.serviceWorker) {
+    navigator.serviceWorker.addEventListener('message', event => {
+      if (event.data && event.data.type === 'version') {
+        versionDiv.textContent = `version: ${event.data.version}`;
+      }
+    });
+  }
+  
   let gamePaused = false;
   
   if ('serviceWorker' in navigator) {
