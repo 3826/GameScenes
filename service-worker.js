@@ -1,5 +1,5 @@
 const CACHE_NAME_BASE = 'GameProto';
-const CACHE_VERSION = 'v0.1.1';
+const CACHE_VERSION = 'v0.1.2';
 const CACHE_NAME = `${CACHE_NAME_BASE}-${CACHE_VERSION}`;
 
 const FILES_TO_CACHE = [
