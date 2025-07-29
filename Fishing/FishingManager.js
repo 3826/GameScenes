@@ -39,10 +39,10 @@ export class FishingManager {
     };
 
     this.fishTable = [
-      { name: 'Common Fish', baseWeight: 0.0209  },
-      { name: 'Uncommon Fish', baseWeight: 0.00593 },
-      { name: 'Rare Fish', baseWeight: 0.00385 },
-      { name: 'Legendary Fish', baseWeight: 0.0077 },
+      { name: 'Common Fish', baseWeight: 1.33 },
+      { name: 'Uncommon Fish', baseWeight: 0.5 },
+      { name: 'Rare Fish', baseWeight: 0.2 },
+      { name: 'Legendary Fish', baseWeight: 0.1 },
     ];
 
     this.isPointerDown = false;
