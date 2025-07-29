@@ -1,5 +1,5 @@
 const CACHE_NAME_BASE = 'GameProto';
-const CACHE_VERSION = 'v0.1.2.1';
+const CACHE_VERSION = 'v0.1.2.2';
 const CACHE_NAME = `${CACHE_NAME_BASE}-${CACHE_VERSION}`;
 
 const FILES_TO_CACHE = [
@@ -29,9 +29,19 @@ const ALWAYS_UPDATE = ['./main.js'];
 
 self.addEventListener('install', event => {
   console.log('[ServiceWorker] Installing - version:', CACHE_NAME);
-  self.skipWaiting(); // Force install to complete immediately
+  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(FILES_TO_CACHE))
+    caches.open(CACHE_NAME).then(async cache => {
+      for (const file of FILES_TO_CACHE) {
+        try {
+          await cache.add(file);
+          console.log('[ServiceWorker] Cached:', file);
+        } catch (err) {
+          console.error('[ServiceWorker] Failed to cache:', file, err);
+        }
+      }
+      console.log('[ServiceWorker] All files processed');
+    })
   );
 });
 

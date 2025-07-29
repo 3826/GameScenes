@@ -78,14 +78,23 @@ export class FishingManager {
 
   getInputPosition(evt) {
     const rect = this.canvas.getBoundingClientRect();
-    const scaleX = this.canvas.width / rect.width;
-    const scaleY = this.canvas.height / rect.height;
-    return {
-      x: (evt.clientX - rect.left) * scaleX,
-      y: (evt.clientY - rect.top) * scaleY,
-    };
+    if (evt.pointerType === 'touch') {
+      console.log('touch');
+      return {
+        x: (evt.clientX - rect.left) / this.scale,
+        y: (evt.clientY - rect.top) / this.scale
+      };
+    } 
+    else if (evt.pointerType === 'mouse') {
+      const scaleX = this.canvas.width / rect.width;
+      const scaleY = this.canvas.height / rect.height;
+      return {
+        x: (evt.clientX - rect.left) * scaleX,
+        y: (evt.clientY - rect.top) * scaleY
+      };
+    }
   }
-
+  
   pointerInPond(x, y) {
     const p = this.PondBoundary;
     return x >= p.x && x <= p.x + p.width && y >= p.y && y <= p.y + p.height;
