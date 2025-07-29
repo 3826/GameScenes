@@ -5,28 +5,11 @@ export class ClickCircle {
   constructor(maxCircles, optionalArgs = {}) {
     this.clickCircles = [];
     this.maxClickCircles = maxCircles;
-
-    // Store optional defaults for ClickCircleInstance
     this.optionalArgs = optionalArgs;
   }
 
   canAdd() {
     return this.clickCircles.length < this.maxClickCircles;
-  }
-
-  tryPauseLastIfFull() {
-    if (!this.canAdd() && this.clickCircles.length) {
-      this.clickCircles[this.clickCircles.length - 1].isPaused = true;
-      return true;
-    }
-    return false;
-  }
-
-  shouldAddNewCircle() {
-    const len = this.clickCircles.length;
-    if (len === 0) return true;
-    const last = this.clickCircles[len - 1];
-    return !last.isPaused;
   }
 
   add(x, y) {
@@ -35,7 +18,6 @@ export class ClickCircle {
   }
 
   removeAt(index) {
-    console.log('removeAt');
     if (index >= 0 && index < this.clickCircles.length) {
       this.clickCircles.splice(index, 1);
     }
@@ -59,5 +41,9 @@ export class ClickCircle {
 
   getCircles() {
     return this.clickCircles;
+  }
+
+  destroy() {
+    this.clickCircles = [];
   }
 }

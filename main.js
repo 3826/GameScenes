@@ -26,6 +26,8 @@ window.addEventListener('load', () => {
 
   const context = { canvas, ctx, width: CANVAS_WIDTH, height: CANVAS_HEIGHT, scale, sceneManager };
   
+  let gamePaused = false;
+  
   if ('serviceWorker' in navigator) {
     console.log('ServiceWorker:');
     
@@ -66,6 +68,7 @@ window.addEventListener('load', () => {
     uiManager.hide('title'); // Hide the DOM title screen
     document.getElementById('back-btn').style.display = 'block';
     canvas.style.display = 'block'; // Show canvas
+    canvas.focus();
     switch (mode) {
       case 'Orbs':
         sceneManager.switchScene(SceneMap.orbClicker(context));
@@ -90,17 +93,56 @@ window.addEventListener('load', () => {
     sceneManager.switchScene(null);
   }
 
-  uiManager.init(onModeSelected, backToTitle);
+  function togglePause(forcePause = null) {
+    if (forcePause === null) {
+      gamePaused = !gamePaused;
+    } else {
+      gamePaused = forcePause;
+    }
+    document.getElementById('pause-screen').style.display = gamePaused ? 'flex' : 'none';
+
+    if (sceneManager.currentScene) {
+      if (gamePaused && typeof sceneManager.currentScene.pause === 'function') {
+        sceneManager.currentScene.pause();
+      } else if (!gamePaused && typeof sceneManager.currentScene.resume === 'function') {
+        sceneManager.currentScene.resume();
+      }
+    }
+  }
+
+  uiManager.init(onModeSelected, backToTitle, () => {
+    togglePause(false);
+  });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Escape' && sceneManager.currentScene) {
+      togglePause();
+    }
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      togglePause(true);
+    } 
+    // else {
+    //   togglePause(false);
+    // }
+  });
+
+  window.addEventListener('blur', () => {
+    togglePause(true);
+  });
+
   uiManager.show('title'); // Show DOM title screen initially
 
   sceneManager.currentScene = null;
 
   let lastTime = 0;
-  function gameLoop(time = 0) {
+    function gameLoop(time = 0) {
     const dt = (time - lastTime) / 1000;
     lastTime = time;
 
-    if (sceneManager.currentScene) {
+    if (!gamePaused && sceneManager.currentScene) {
       sceneManager.update(dt);
     }
 

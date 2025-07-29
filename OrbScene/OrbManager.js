@@ -1,4 +1,4 @@
-// OrbScene/OrbScene.js
+// OrbScene/OrbManager.js
 import { TimerBar } from '../CanvasUI/TimerBar.js';
 import { ClickCircle } from '../CanvasComponents/ClickCircle.js';
 import { Orb } from './Orb.js';
@@ -20,30 +20,53 @@ export class OrbManager {
         speed: 60,
         color: '255,0,0',
         spawnInterval: 2.5,
-        drawPriority: 1
+        spawnChancePerSecond: null,
+        drawPriority: 1,
+        maxAmount: null,
+        spawnedCount: 0,
+        onCatch: (manager) => {}
       },
       largeMedium: {
-        radius: 32,
+        radius: 30,
         speed: 40,
         color: '0,0,255',
         spawnInterval: 6,
-        drawPriority: 2
-      }
+        spawnChancePerSecond: 0.1,
+        drawPriority: 2,
+        maxAmount: 2,
+        spawnedCount: 0,
+        onCatch: (manager) => {
+          manager.timerBar.addTime(10);
+        }
+      },
+      boosterOrb: {
+        radius: 15,
+        speed: 50,
+        color: '0,255,0',
+        spawnInterval: null,
+        spawnChancePerSecond: 0.025,
+        drawPriority: 3,
+        maxAmount: 1,
+        spawnedCount: 0,
+        onCatch: (manager) => {
+          manager.clickCircles.maxClickCircles = Math.min(manager.clickCircles.maxClickCircles + 1, 5);
+        }
+      },
     };
 
     this.orbs = [];
     this.spawnTimers = {};
     Object.keys(this.orbTypes).forEach(type => (this.spawnTimers[type] = 0));
 
-    this.clickCircles = new ClickCircle(1, {
+    this.clickCircles = new ClickCircle(3, {
       lineWidth: 3,
       duration: 2,
       startRadius: 5,
-      maxRadius: 34
+      maxRadius: 36,
+      dynamicLineWidth: false,
     });
 
     this.isPointerDown = false;
-    this.didPauseOnPointerDown = false;
 
     this.emptyClickHandler = () => {};
     this.handlePointerDown = this.handlePointerDown.bind(this);
@@ -73,14 +96,21 @@ export class OrbManager {
 
   init() {
     Object.keys(this.spawnTimers).forEach(type => (this.spawnTimers[type] = 0));
+    Object.values(this.orbTypes).forEach(t => (t.spawnedCount = 0));
   }
 
   spawnOrb(type) {
     const t = this.orbTypes[type];
+
+    // Prevent spawning if maxAmount is set and reached
+    if (t.maxAmount != null && t.spawnedCount >= t.maxAmount) return;
+
     const radius = t.radius;
     const x = Math.random() * (this.width - 2 * radius) + radius;
     const y = -radius;
+
     this.orbs.push(new Orb(x, y, type, radius, t.speed, t.color, t.drawPriority));
+    t.spawnedCount++;
   }
 
   getInputPosition(evt) {
@@ -93,7 +123,6 @@ export class OrbManager {
       };
     } 
     else if (evt.pointerType === 'mouse') {
-      console.log('mouse');
       const scaleX = this.canvas.width / rect.width;
       const scaleY = this.canvas.height / rect.height;
       return {
@@ -105,23 +134,17 @@ export class OrbManager {
 
   handlePointerDown(evt) {
     if (evt.pointerType === 'mouse' && evt.button !== 0) return;
-
     this.isPointerDown = true;
-    this.didPauseOnPointerDown = this.clickCircles.tryPauseLastIfFull();
   }
 
   handlePointerUp(evt) {
     if (evt.pointerType === 'mouse' && evt.button !== 0) return;
-
     this.isPointerDown = false;
 
-    if (!this.didPauseOnPointerDown && this.clickCircles.shouldAddNewCircle()) {
-      const { x, y } = this.getInputPosition(evt);
-      this.clickCircles.add(x, y);
-    }
-
-    this.didPauseOnPointerDown = false;
-}
+    // Directly add new circle without checks
+    const { x, y } = this.getInputPosition(evt);
+    this.clickCircles.add(x, y);
+  }
 
   update(dt) {
     this.clickCircles.update(dt, this.isPointerDown);
@@ -138,6 +161,7 @@ export class OrbManager {
     for (let i = circles.length - 1; i >= 0; i--) {
       const circle = circles[i];
       const radius = circle.getRadius();
+
       let orbCaught = false;
 
       for (let j = this.orbs.length - 1; j >= 0; j--) {
@@ -145,17 +169,15 @@ export class OrbManager {
         const dx = orb.x - circle.x;
         const dy = orb.y - circle.y;
         const distSq = dx*dx + dy*dy;
-
+        if (radius < orb.radius) continue;
         if (distSq <= (radius - orb.radius) ** 2) {
           orbCaught = true;
           this.orbs.splice(j, 1);
 
-          if (orb.type === 'largeMedium')  {
-            this.timerBar.addTime(10);
+          const typeData = this.orbTypes[orb.type];
+          if (typeData && typeof typeData.onCatch === 'function') {
+            typeData.onCatch(this);
           }
-          // else if (orb.type === 'smallFast') {
-            // this.timerBar.subtractTime(5);
-          // } 
         }
       }
 
@@ -167,10 +189,24 @@ export class OrbManager {
 
   spawnOrbs(dt) {
     for (const type in this.orbTypes) {
-      this.spawnTimers[type] += dt;
-      if (this.spawnTimers[type] >= this.orbTypes[type].spawnInterval) {
-        this.spawnOrb(type);
-        this.spawnTimers[type] -= this.orbTypes[type].spawnInterval;
+      const orbType = this.orbTypes[type];
+
+      // --- INTERVAL-BASED SPAWNING ---
+      if (orbType.spawnInterval != null) {
+        this.spawnTimers[type] += dt;
+        if (this.spawnTimers[type] >= orbType.spawnInterval) {
+          this.spawnOrb(type);
+          this.spawnTimers[type] -= orbType.spawnInterval;
+        }
+      }
+
+      // --- CHANCE-BASED SPAWNING ---
+      if (orbType.spawnChancePerSecond != null) {
+        const chance = orbType.spawnChancePerSecond;
+        const spawnProbability = 1 - Math.pow(1 - chance, dt);
+        if (Math.random() < spawnProbability) {
+          this.spawnOrb(type);
+        }
       }
     }
   }
@@ -215,5 +251,6 @@ export class OrbManager {
     this.orbTypes = null;
     this.spawnTimers = null;
     this.clickCircles = null;
+    this.clickCircles.destroy();
   }
 }
